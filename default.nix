@@ -22,16 +22,15 @@ stdenv.mkDerivation rec {
   buildInputs = if mpi then [ pkgs.openmpi ] else [];
 
   # TODO darwin, AVX and AVX2 makefile targets
-  buildPhase = ''
-      make -f Makefile.gcc
-    '' + (if mpi then ''
+  targetName = if stdenv.isDarwin then "mac" else "gcc";
+  buildPhase = if mpi then ''
       make -f Makefile.MPI.gcc
     '' else ''
-      make -f Makefile.SSE3.PTHREADS.gcc
-    '');
+      make -f Makefile.SSE3.PTHREADS.${targetName}
+    '';
 
   installPhase = ''
-      mkdir -p $out/bin && cp raxmlHPC $out/bin
+      mkdir -p $out/bin
     '' + (if mpi then ''
       cp raxmlHPC-MPI $out/bin
     '' else ''
